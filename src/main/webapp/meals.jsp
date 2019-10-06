@@ -6,16 +6,19 @@
     <title>Meals</title>
     <link rel="stylesheet" href="resources/css/style.css"/>
     <link rel="stylesheet" href="webjars/bootstrap/4.1.3/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="webjars/fontawesome/4.7.0/css/font-awesome.min.css"/>
 </head>
 <body>
 <h3><a href="index.html">Home</a></h3>
 <div class="container">
     <h2>Meals</h2>
+    <a href="meals?action=add" class="btn btn-primary"><i class="fa fa-plus"></i> Добавить</a>
     <table class="table table-striped">
         <thead>
         <th>Дата / Время</th>
         <th>Описание</th>
         <th>Калории</th>
+        <th colspan="2">Действие</th>
         </thead>
         <tbody>
         <c:forEach items="${meals}" var="meal">
@@ -25,13 +28,16 @@
                 </td>
                 <td>${meal.description}</td>
                 <td>${meal.calories}</td>
+                <td>
+                    <a href="meals?id=${meal.id}&action=edit"><i class="fa fa-pencil"></i></a>
+                </td>
+                <td>
+                    <a href="meals?id=${meal.id}&action=delete"><i class="fa fa-times"></i></a>
+                </td>
             </tr>
         </c:forEach>
         </tbody>
     </table>
 </div>
-
-<script src="webjars/jquery/3.0.0/jquery.min.js"></script>
-<script src="webjars/bootstrap/4.1.3/js/bootstrap.min.js"></script>
 </body>
 </html>
