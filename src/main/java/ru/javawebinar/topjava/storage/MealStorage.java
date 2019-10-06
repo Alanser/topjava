@@ -5,7 +5,6 @@ import ru.javawebinar.topjava.model.Meal;
 import java.util.List;
 
 public interface MealStorage {
-    void clear();
 
     void update(Meal meal);
 
@@ -16,6 +15,4 @@ public interface MealStorage {
     void delete(int id);
 
     List<Meal> getAll();
-
-    int size();
 }

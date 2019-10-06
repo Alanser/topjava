@@ -3,6 +3,7 @@ package ru.javawebinar.topjava.web;
 import org.slf4j.Logger;
 import ru.javawebinar.topjava.TestDataMeals;
 import ru.javawebinar.topjava.model.Meal;
+import ru.javawebinar.topjava.storage.MapMealStorage;
 import ru.javawebinar.topjava.storage.MealStorage;
 import ru.javawebinar.topjava.util.MealsUtil;
 
@@ -17,8 +18,14 @@ import java.time.LocalTime;
 import static org.slf4j.LoggerFactory.getLogger;
 
 public class MealServlet extends HttpServlet {
-    private MealStorage storage = TestDataMeals.storage;
+    private MealStorage storage;
     private static final Logger log = getLogger(MealServlet.class);
+
+    @Override
+    public void init() throws ServletException {
+        storage = new MapMealStorage();
+        TestDataMeals.fillStorage(storage);
+    }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -42,8 +49,7 @@ public class MealServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String action = request.getParameter("action");
         if (action == null) {
-            request.setAttribute("meals", MealsUtil.getFiltered(storage.getAll(), LocalTime.MIN, LocalTime.MAX, 2000));
-            request.getRequestDispatcher("meals.jsp").forward(request, response);
+            mealsForward(request, response);
             return;
         }
         String id = request.getParameter("id");
@@ -62,9 +68,16 @@ public class MealServlet extends HttpServlet {
                 }
                 break;
             default:
-                throw new IllegalArgumentException("Action " + action + " is illegal");
+                mealsForward(request, response);
+                return;
         }
         request.setAttribute("meal", meal);
         request.getRequestDispatcher("mealEdit.jsp").forward(request, response);
     }
+
+    private void mealsForward(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        request.setAttribute("meals", MealsUtil.getFiltered(storage.getAll(), LocalTime.MIN, LocalTime.MAX, 2000));
+        request.getRequestDispatcher("meals.jsp").forward(request, response);
+    }
+
 }
