@@ -9,8 +9,9 @@ import ru.javawebinar.topjava.util.DateTimeUtil;
 import ru.javawebinar.topjava.util.MealsUtil;
 
 import java.time.LocalDate;
-import java.util.Collection;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -20,17 +21,20 @@ import java.util.stream.Collectors;
 @Repository
 public class InMemoryMealRepository implements MealRepository {
     private static final Logger log = LoggerFactory.getLogger(InMemoryMealRepository.class);
-    private Map<Integer, ConcurrentHashMap<Integer, Meal>> repository = new ConcurrentHashMap<>();
+    private Map<Integer, Map<Integer, Meal>> repository = new ConcurrentHashMap<>();
     private AtomicInteger counter = new AtomicInteger(0);
 
     {
-        MealsUtil.MEALS.forEach(meal -> this.save(1, meal));
+        MealsUtil.MEALS.forEach(meal -> {
+            this.save(1, new Meal(meal.getDateTime(), meal.getDescription() + " (User 1)", meal.getCalories()));
+            this.save(2, new Meal(meal.getDateTime(), meal.getDescription() + " (User 2)", meal.getCalories()));
+        });
     }
 
     @Override
     public Meal save(int userId, Meal meal) {
         log.info("save {} by userID{}", meal, userId);
-        ConcurrentHashMap<Integer, Meal> userMeals = getUserMeals(userId);
+        Map<Integer, Meal> userMeals = getUserMeals(userId);
         if (userMeals.isEmpty()) {
             repository.put(userId, userMeals);
         }
@@ -56,23 +60,23 @@ public class InMemoryMealRepository implements MealRepository {
     }
 
     @Override
-    public Collection<Meal> getAll(int userId) {
+    public List<Meal> getAll(int userId) {
         log.info("getAll");
         return getFiltered(userId, m -> true);
     }
 
     @Override
-    public Collection<Meal> getFilteredByDate(int userId, LocalDate startDate, LocalDate endDate) {
+    public List<Meal> getFilteredByDate(int userId, LocalDate startDate, LocalDate endDate) {
         log.info("getFilteredByDate");
         return getFiltered(userId, m -> DateTimeUtil.isBetween(m.getDate(), startDate, endDate));
     }
 
-    private ConcurrentHashMap<Integer, Meal> getUserMeals(int userId) {
-        ConcurrentHashMap<Integer, Meal> userMeals = repository.get(userId);
-        return userMeals == null ? new ConcurrentHashMap<>() : userMeals;
+    private Map<Integer, Meal> getUserMeals(int userId) {
+        Map<Integer, Meal> userMeals = repository.get(userId);
+        return userMeals == null ? new HashMap<>() : userMeals;
     }
 
-    private Collection<Meal> getFiltered(int userId, Predicate<Meal> filter) {
+    private List<Meal> getFiltered(int userId, Predicate<Meal> filter) {
         return getUserMeals(userId).values().stream()
                 .filter(filter)
                 .sorted(Comparator.comparing(Meal::getDateTime).reversed())

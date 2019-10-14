@@ -24,8 +24,6 @@
     <h2>Meals</h2>
     <br><br>
 
-    ${SecurityUtil.authUserId() == 0 ? "<h3 style=\"color:red\">Сначала авторизуйтесь! (у User 1 уже заполнены meals)</h3>" : ""}
-
     <form action="meals" method="get">
         <input type="hidden" name="action" value="filter">
         <div style="border: #777 solid 1px; padding: 2em;display: flex; flex-direction: column; align-content: space-between; width: 800px">
