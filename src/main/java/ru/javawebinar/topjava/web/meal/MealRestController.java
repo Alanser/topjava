@@ -48,14 +48,14 @@ public class MealRestController {
         return MealsUtil.getTos(service.getAll(authUserId()), authUserCaloriesPerDay());
     }
 
-    public List<MealTo> getFiltered(String startDate, String endDate, String startTime, String endTime) {
+    public List<MealTo> getFiltered(LocalDate startDate, LocalDate endDate, LocalTime startTime, LocalTime endTime) {
         log.info("getFiltered");
         return MealsUtil.getFilteredTos(
                 service.getFilteredByDate(authUserId(),
-                        startDate == null || startDate.isEmpty() ? LocalDate.MIN : LocalDate.parse(startDate),
-                        endDate == null || endDate.isEmpty() ? LocalDate.MAX : LocalDate.parse(endDate)),
+                        startDate == null ? LocalDate.MIN : startDate,
+                        endDate == null ? LocalDate.MAX : endDate),
                 authUserCaloriesPerDay(),
-                startTime == null || startTime.isEmpty() ? LocalTime.MIN : LocalTime.parse(startTime),
-                endTime == null || endTime.isEmpty() ? LocalTime.MAX : LocalTime.parse(endTime));
+                startTime == null ? LocalTime.MIN : startTime,
+                endTime == null ? LocalTime.MAX : endTime);
     }
 }

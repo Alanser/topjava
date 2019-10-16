@@ -35,9 +35,7 @@ public class InMemoryMealRepository implements MealRepository {
     public Meal save(int userId, Meal meal) {
         log.info("save {} by userID{}", meal, userId);
         Map<Integer, Meal> userMeals = getUserMeals(userId);
-        if (userMeals.isEmpty()) {
-            repository.put(userId, userMeals);
-        }
+        repository.putIfAbsent(userId, userMeals);
         if (meal.isNew()) {
             meal.setId(counter.incrementAndGet());
             userMeals.put(meal.getId(), meal);
