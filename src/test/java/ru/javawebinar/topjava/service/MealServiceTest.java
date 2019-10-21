@@ -50,7 +50,7 @@ public class MealServiceTest {
     @Test
     public void delete() {
         service.delete(USER_MEAL_ID_1, USER_ID);
-        assertMatch(service.getAll(USER_ID), USER_MEAL_2, USER_MEAL_3, USER_MEAL_4, USER_MEAL_5, USER_MEAL_6);
+        assertMatch(service.getAll(USER_ID), USER_MEAL_6, USER_MEAL_5, USER_MEAL_4, USER_MEAL_3, USER_MEAL_2);
     }
 
     @Test(expected = NotFoundException.class)
@@ -61,13 +61,13 @@ public class MealServiceTest {
     @Test
     public void getBetweenDates() {
         List<Meal> meals = service.getBetweenDates(LocalDate.parse("2019-10-18"), LocalDate.parse("2019-10-19"), USER_ID);
-        assertMatch(meals, USER_MEAL_1, USER_MEAL_2, USER_MEAL_3);
+        assertMatch(meals, USER_MEAL_3, USER_MEAL_2, USER_MEAL_1);
     }
 
     @Test
     public void getAll() {
         List<Meal> meals = service.getAll(USER_ID);
-        assertMatch(meals, USER_MEAL_1, USER_MEAL_2, USER_MEAL_3, USER_MEAL_4, USER_MEAL_5, USER_MEAL_6);
+        assertMatch(meals, USER_MEAL_6, USER_MEAL_5, USER_MEAL_4, USER_MEAL_3, USER_MEAL_2, USER_MEAL_1);
     }
 
     @Test
@@ -94,6 +94,6 @@ public class MealServiceTest {
         Meal newMeal = new Meal(null, LocalDateTime.now(), "Новая еда", 1500);
         Meal created = service.create(newMeal, USER_ID);
         newMeal.setId(created.getId());
-        assertMatch(service.getAll(USER_ID), USER_MEAL_1, USER_MEAL_2, USER_MEAL_3, USER_MEAL_4, USER_MEAL_5, USER_MEAL_6, newMeal);
+        assertMatch(service.getAll(USER_ID), newMeal, USER_MEAL_6, USER_MEAL_5, USER_MEAL_4, USER_MEAL_3, USER_MEAL_2, USER_MEAL_1);
     }
 }
