@@ -21,6 +21,7 @@ import java.time.LocalDate;
 import java.time.Month;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 import static ru.javawebinar.topjava.MealTestData.*;
@@ -53,7 +54,12 @@ public class MealServiceTest {
 
     @AfterClass
     public static void showExecutionTimes() {
-        executionTimes.forEach((k, v) -> LOGGER.info(String.format("%s - %d milliseconds", k, v)));
+        StringBuilder sb = new StringBuilder("\n");
+        executionTimes.forEach((k, v) -> sb.append("\u001B[3")
+                .append(1 + new Random().nextInt(6))
+                .append("m")
+                .append(String.format("%-15s %6d ms\n", k, v)));
+        LOGGER.info(sb.toString() + "\u001B[0m");
     }
 
     @Autowired
