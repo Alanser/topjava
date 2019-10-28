@@ -7,6 +7,8 @@ import org.junit.rules.ExpectedException;
 import org.junit.rules.Stopwatch;
 import org.junit.runner.Description;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.jdbc.Sql;
@@ -20,7 +22,6 @@ import java.time.Month;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Logger;
 
 import static ru.javawebinar.topjava.MealTestData.*;
 import static ru.javawebinar.topjava.UserTestData.ADMIN_ID;
@@ -38,22 +39,21 @@ public class MealServiceTest {
     @Rule
     public ExpectedException thrown = ExpectedException.none();
 
-    private static final Logger LOGGER = Logger.getLogger("");
+    private static final Logger LOGGER = LoggerFactory.getLogger(MealServiceTest.class);
 
     @Rule
     public Stopwatch stopwatch = new Stopwatch() {
         @Override
         protected void finished(long nanos, Description description) {
             String testName = description.getMethodName();
-            Long executionTime = TimeUnit.NANOSECONDS.toMicros(nanos);
-            LOGGER.info(String.format("Test %s finished, spent %d microseconds", testName, executionTime));
+            Long executionTime = TimeUnit.NANOSECONDS.toMillis(nanos);
             executionTimes.put(testName, executionTime);
         }
     };
 
     @AfterClass
     public static void showExecutionTimes() {
-        executionTimes.forEach((k, v) -> LOGGER.info(String.format("%s - %d microseconds", k, v)));
+        executionTimes.forEach((k, v) -> LOGGER.info(String.format("%s - %d milliseconds", k, v)));
     }
 
     @Autowired
