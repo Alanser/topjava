@@ -2,6 +2,7 @@ package ru.javawebinar.topjava.repository.datajpa;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.repository.MealRepository;
 import ru.javawebinar.topjava.util.DateTimeUtil;
@@ -19,6 +20,7 @@ public class DataJpaMealRepository implements MealRepository {
     private CrudUserRepository crudUserRepository;
 
     @Override
+    @Transactional
     public Meal save(Meal meal, int userId) {
         if (!meal.isNew() && get(meal.getId(), userId) == null) {
             return null;
@@ -34,15 +36,12 @@ public class DataJpaMealRepository implements MealRepository {
 
     @Override
     public Meal get(int id, int userId) {
-        Meal meal = crudRepository.findById(id).orElse(null);
-        return meal != null && meal.getUser().getId() == userId ? meal : null;
+        return crudRepository.findById(id).filter(m -> m.getUser().getId() == userId).orElse(null);
     }
 
     @Override
     public Meal getWithUser(int id, int userId) {
-        Meal meal = get(id, userId);
-        meal.setUser(crudUserRepository.findById(userId).orElse(null));
-        return meal;
+        return crudRepository.getWithUser(id, userId);
     }
 
     @Override
@@ -52,7 +51,7 @@ public class DataJpaMealRepository implements MealRepository {
 
     @Override
     public List<Meal> getBetweenInclusive(LocalDate startDate, LocalDate endDate, int userId) {
-        return crudRepository.findAllByUserIdAndDateTimeGreaterThanEqualAndDateTimeLessThanOrderByDateTimeDesc(userId, DateTimeUtil.getStartInclusive(startDate),
+        return crudRepository.getBetweenInclusive(userId, DateTimeUtil.getStartInclusive(startDate),
                 DateTimeUtil.getEndExclusive(endDate));
     }
 }
