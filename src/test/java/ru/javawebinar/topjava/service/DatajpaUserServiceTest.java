@@ -20,7 +20,10 @@ public class DatajpaUserServiceTest extends AbstractUserServiceTest {
         User user = service.getWithMeals(UserTestData.USER_ID);
         assertMatch(user, USER);
         MealTestData.assertMatch(user.getMeals(), MealTestData.MEALS);
+    }
 
+    @Test
+    public void getWithEmptyMeals() throws Exception {
         User newUser = service.create(new User(100011, "NewUser", "new_user@mail.ru", "password", Role.ROLE_USER));
         User userWithEmptyMeals = service.getWithMeals(newUser.getId());
         MealTestData.assertMatch(userWithEmptyMeals.getMeals(), Collections.emptyList());
