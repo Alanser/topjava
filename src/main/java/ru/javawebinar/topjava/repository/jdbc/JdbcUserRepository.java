@@ -4,7 +4,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
@@ -27,24 +26,6 @@ public class JdbcUserRepository implements UserRepository {
     private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
     private final SimpleJdbcInsert insertUser;
-
-    private RowMapper<User> userRowMapper = (rs, rowNum) -> {
-        User user = new User();
-        user.setId(rs.getInt("id"));
-        user.setName(rs.getString("name"));
-        user.setEmail(rs.getString("email"));
-        user.setPassword(rs.getString("password"));
-        user.setEnabled(rs.getBoolean("enabled"));
-        user.setCaloriesPerDay(rs.getInt("calories_per_day"));
-        Set<Role> roles = EnumSet.of(Role.valueOf(rs.getString("role")));
-        while (rs.next()) {
-            roles.add(Role.valueOf(rs.getString("role")));
-        }
-        user.setRoles(roles);
-        return user;
-    };
-
-    private RowMapper<Role> roleRowMapper = (rs, rowNum) -> Role.valueOf(rs.getString("role"));
 
     @Autowired
     public JdbcUserRepository(JdbcTemplate jdbcTemplate, NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
@@ -70,10 +51,11 @@ public class JdbcUserRepository implements UserRepository {
         }
         List<Object[]> batch = new ArrayList<>();
         for (Role role : user.getRoles()) {
-            Object[] values = new Object[]{role.toString(), user.getId(), role.toString()};
+            Object[] values = new Object[]{role.toString(), user.getId()};
             batch.add(values);
         }
-        jdbcTemplate.batchUpdate("INSERT INTO user_roles (role ,user_id) VALUES (?,?) ON CONFLICT (role, user_id) DO UPDATE SET role = ?", batch);
+        jdbcTemplate.update("DELETE FROM user_roles WHERE user_id=?", user.getId());
+        jdbcTemplate.batchUpdate("INSERT INTO user_roles (role ,user_id) VALUES (?,?)", batch);
         return user;
     }
 
@@ -84,18 +66,12 @@ public class JdbcUserRepository implements UserRepository {
 
     @Override
     public User get(int id) {
-        List<User> users = jdbcTemplate.query("SELECT * FROM users u LEFT JOIN user_roles r ON r.user_id=? WHERE u.id=?", userRowMapper, id, id);
-        return DataAccessUtils.singleResult(users);
+        return getBy("id", id);
     }
 
     @Override
     public User getByEmail(String email) {
-//        return jdbcTemplate.queryForObject("SELECT * FROM users WHERE email=?", ROW_MAPPER, email);
-        List<User> users = jdbcTemplate.query("SELECT * FROM users WHERE email=?", ROW_MAPPER, email);
-        User user = DataAccessUtils.singleResult(users);
-        List<Role> roles = jdbcTemplate.query("SELECT * FROM user_roles WHERE user_id = ?", roleRowMapper, user.getId());
-        user.setRoles(roles);
-        return user;
+        return getBy("email", email);
     }
 
     @Override
@@ -116,5 +92,18 @@ public class JdbcUserRepository implements UserRepository {
             user.setRoles(roles.get(user.getId()));
         }
         return users;
+    }
+
+    private <T> User getBy(String column, T value) {
+        String sql = "SELECT * FROM users WHERE " + column + " = ?";
+        List<User> users = jdbcTemplate.query(sql, ROW_MAPPER, value);
+        User user = DataAccessUtils.singleResult(users);
+        if (user != null) {
+            List<Role> roles = jdbcTemplate.query("SELECT * FROM user_roles WHERE user_id = ?",
+                    (rs, rowNum) -> Role.valueOf(rs.getString("role")),
+                    user.getId());
+            user.setRoles(roles);
+        }
+        return user;
     }
 }

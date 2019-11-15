@@ -1,5 +1,6 @@
 package ru.javawebinar.topjava.repository.jpa;
 
+import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import ru.javawebinar.topjava.model.User;
@@ -58,15 +59,10 @@ public class JpaUserRepository implements UserRepository {
 
     @Override
     public User getByEmail(String email) {
-        return em.createNamedQuery(User.BY_EMAIL, User.class)
+        List<User> users = em.createNamedQuery(User.BY_EMAIL, User.class)
                 .setParameter(1, email)
-                .getResultList()
-                .stream()
-                .reduce((user1, user2) -> {
-                    user2.getRoles().addAll(user1.getRoles());
-                    return user2;
-                })
-                .orElse(null);
+                .getResultList();
+        return DataAccessUtils.singleResult(users);
     }
 
     @Override

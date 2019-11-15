@@ -10,10 +10,7 @@ import ru.javawebinar.topjava.model.User;
 import ru.javawebinar.topjava.util.exception.NotFoundException;
 
 import javax.validation.ConstraintViolationException;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static ru.javawebinar.topjava.UserTestData.*;
 
@@ -65,6 +62,11 @@ public abstract class AbstractUserServiceTest extends AbstractServiceTest {
         assertMatch(user, USER);
     }
 
+    @Test(expected = NotFoundException.class)
+    public void getByEmailNotExists() throws Exception {
+        User user = service.getByEmail("notexistsemail@yandex.ru");
+    }
+
     @Test
     public void update() throws Exception {
         User updated = getUpdated();
@@ -76,6 +78,22 @@ public abstract class AbstractUserServiceTest extends AbstractServiceTest {
     public void getAll() throws Exception {
         List<User> all = service.getAll();
         assertMatch(all, ADMIN, USER);
+    }
+
+    @Test
+    public void deleteRole() throws Exception {
+        User admin = new User(ADMIN);
+        admin.getRoles().remove(Role.ROLE_ADMIN);
+        service.update(admin);
+        assertMatch(service.get(ADMIN_ID), admin);
+    }
+
+    @Test
+    public void addRole() throws Exception {
+        User user = new User(USER);
+        user.getRoles().add(Role.ROLE_ADMIN);
+        service.update(user);
+        assertMatch(service.get(USER_ID), user);
     }
 
     @Test
