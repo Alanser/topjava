@@ -13,7 +13,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static ru.javawebinar.topjava.UserTestData.*;
 
 public abstract class AbstractUserServiceTest extends AbstractServiceTest {
@@ -79,6 +79,15 @@ public abstract class AbstractUserServiceTest extends AbstractServiceTest {
     void getAll() throws Exception {
         List<User> all = service.getAll();
         assertMatch(all, ADMIN, USER);
+    }
+
+    @Test
+    void enable() throws Exception {
+        assertTrue(service.enable(false, USER_ID));
+        assertFalse(service.get(USER_ID).isEnabled());
+
+        assertTrue(service.enable(true, USER_ID));
+        assertTrue(service.get(USER_ID).isEnabled());
     }
 
     @Test

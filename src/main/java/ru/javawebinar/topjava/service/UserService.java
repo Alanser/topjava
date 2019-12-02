@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import ru.javawebinar.topjava.model.User;
 import ru.javawebinar.topjava.repository.UserRepository;
@@ -56,5 +57,13 @@ public class UserService {
 
     public User getWithMeals(int id) {
         return checkNotFoundWithId(repository.getWithMeals(id), id);
+    }
+
+    @CacheEvict(value = "users", allEntries = true)
+    @Transactional
+    public boolean enable(boolean enable, int id) {
+        User user = repository.get(id);
+        user.setEnabled(enable);
+        return repository.save(user).isEnabled() == enable;
     }
 }

@@ -1,8 +1,18 @@
 function enable(input, id) {
     let e = input.is(":checked");
-    input.prop("checked", e);
-    input.closest("tr").attr("data-userEnabled", e);
-    $.post(context.ajaxUrl + "enable", {enable: e, id: id});
+    $.post(context.ajaxUrl + "enable", {enable: e, id: id}, function (data) {
+        if (data) {
+            input.closest("tr").attr("data-userEnabled", e);
+            if (e)
+                successNoty("Enabled");
+            else
+                successNoty("Disabled");
+        }
+    });
+}
+
+function updateThisTable() {
+    updateTable();
 }
 
 $(function () {

@@ -4,17 +4,21 @@ function clearFilter() {
 }
 
 function updateFilteredTable() {
-    let startDate = $("#startDate").val();
-    let endDate = $("#endDate").val();
-    let startTime = $("#startTime").val();
-    let endTime = $("#endTime").val();
-    $.get(context.ajaxUrl + "filter" +
-        "?startDate=" + startDate +
-        "&endDate=" + endDate +
-        "&startTime=" + startTime +
-        "&endTime=" + endTime, function (data) {
-        context.datatableApi.clear().rows.add(data).draw();
+    $.get(context.ajaxUrl + "filter", $("#filter").serialize(), function (data) {
+        drawUpdatedTable(data);
     });
+}
+
+function updateThisTable() {
+    let empty = true;
+    $("#filter").find("input").each(function(){
+        if($(this).val()) empty = false;
+    });
+    if(empty){
+        updateTable();
+    } else {
+        updateFilteredTable();
+    }
 }
 
 $(function () {
@@ -35,18 +39,24 @@ $(function () {
                         "data": "calories"
                     },
                     {
-                        "defaultContent": "Edit",
+                        "defaultContent": "<a><span class=\"fa fa-pencil\"></span></a>",
                         "orderable": false
                     },
                     {
                         "defaultContent": "Delete",
-                        "orderable": false
+                        "orderable": false,
+                        render: function (data, type, row) {
+                            if (type === "display" && row.id !== undefined) {
+                                return "<a onclick=\"deleteRow(" + row.id + ")\"><span class=\"fa fa-remove\"></span></a>";
+                            }
+                            return data;
+                        }
                     }
                 ],
                 "order": [
                     [
                         0,
-                        "asc"
+                        "desc"
                     ]
                 ],
                 "createdRow": function (row, data, dataIndex) {
