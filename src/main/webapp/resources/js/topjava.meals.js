@@ -10,15 +10,7 @@ function updateFilteredTable() {
 }
 
 function updateThisTable() {
-    let empty = true;
-    $("#filter").find("input").each(function(){
-        if($(this).val()) empty = false;
-    });
-    if(empty){
-        updateTable();
-    } else {
-        updateFilteredTable();
-    }
+    updateFilteredTable();
 }
 
 $(function () {

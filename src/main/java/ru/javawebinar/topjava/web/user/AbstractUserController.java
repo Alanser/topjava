@@ -50,7 +50,7 @@ public abstract class AbstractUserController {
     }
 
     public boolean enable(boolean enable, int id) {
-        log.info("change enable for {}", enable);
+        log.info("change enable for {}", id);
         return service.enable(enable, id);
     }
 }

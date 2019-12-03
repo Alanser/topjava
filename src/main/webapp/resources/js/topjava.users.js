@@ -1,13 +1,20 @@
 function enable(input, id) {
     let e = input.is(":checked");
-    $.post(context.ajaxUrl + "enable", {enable: e, id: id}, function (data) {
-        if (data) {
-            input.closest("tr").attr("data-userEnabled", e);
-            if (e)
-                successNoty("Enabled");
-            else
-                successNoty("Disabled");
+    $.ajax({
+        url: context.ajaxUrl + "enable",
+        type: "POST",
+        data: {enable: e, id: id}
+    }).done( function (data) {
+            if (data) {
+                input.closest("tr").attr("data-userEnabled", e);
+                if (e)
+                    successNoty("Enabled");
+                else
+                    successNoty("Disabled");
+            }
         }
+    ).fail(function () {
+        input.prop("checked", !e);
     });
 }
 
