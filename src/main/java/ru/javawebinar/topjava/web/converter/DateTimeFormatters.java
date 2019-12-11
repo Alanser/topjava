@@ -1,16 +1,28 @@
 package ru.javawebinar.topjava.web.converter;
 
 import org.springframework.format.Formatter;
+import ru.javawebinar.topjava.util.DateTimeUtil;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 
-import static ru.javawebinar.topjava.util.DateTimeUtil.parseLocalDate;
-import static ru.javawebinar.topjava.util.DateTimeUtil.parseLocalTime;
+import static ru.javawebinar.topjava.util.DateTimeUtil.*;
 
 public class DateTimeFormatters {
+    public static class LocalDateTimeFormatter implements Formatter<LocalDateTime> {
+        @Override
+        public LocalDateTime parse(String s, Locale locale) {
+            return parseLocalDateTime(s);
+        }
+
+        @Override
+        public String print(LocalDateTime dateTime, Locale locale) {
+            return DateTimeUtil.toString(dateTime);
+        }
+    }
     public static class LocalDateFormatter implements Formatter<LocalDate> {
 
         @Override
